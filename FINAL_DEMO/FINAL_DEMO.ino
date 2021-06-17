@@ -119,10 +119,18 @@ void loop()
   if(dustDensityug < 0) dustDensityug = 0;
   Serial.print("Dust Density [ug.m^3]: ");
   Serial.println(dustDensityug);
+
+  int val = analogRead(A1);
+  Serial.print("READED = ");
+  Serial.print(val);
+  Serial.print(" , Volt = ");
+  int volt = map(val,0,1023,0,100);
+  Serial.print(volt);
+  Serial.println("mV");
   
   temp = DHT.readTemperature();
   humi = DHT.readHumidity();
-  String str_output = String(temp)+"&humi="+String(humi)+"&dust="+String(dustDensityug);
+  String str_output = String(temp)+"&humi="+String(humi)+"&dust="+String(dustDensityug)+"&bat="+String(volt);
   delay(1000);
   httpclient(str_output);
   delay(1000);
