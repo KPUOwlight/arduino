@@ -55,7 +55,7 @@ void httpclient(String char_input)
   Serial.println("Send data...");
   String url=char_input;
   //Serial.println(url);
-  String cmd="GET /process2.php?temp="+url+" HTTP/1.0\r\n\r\n";
+  String cmd="GET /process3.php?temp="+url+" HTTP/1.0\r\n\r\n";
   //Serial.println(cmd);
   Serial.print("AT+CIPSEND=");
   Serial.println(cmd.length());
@@ -126,6 +126,7 @@ void loop()
   delay(1000);
   httpclient(str_output);
   delay(1000);
+  
   //Serial.find("+IPD");
   while (mySerial.available())
   {
