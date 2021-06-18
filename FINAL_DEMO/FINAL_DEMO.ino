@@ -14,7 +14,7 @@ SoftwareSerial mySerial(2,3); // RX,TX
 String ssid = "AndroidHotspot7283";
 String PASSWORD = "01020137283";
 String host = "13.125.177.193";
-
+// ======== 실험을 위한 스마트폰 핫스팟 연결
 int dust_sensor = A0; //Connect dust sensor to Arduino A0 pin
 int sensor_led = 5;   //Connect 3 led driver pins of dust sensor to Arduino D2
 float dust_value = 0;
@@ -27,7 +27,7 @@ int stop_time = 9680;
 float dust_init = 0;
 float dust_initial = 0;
 
-void connectWifi() {
+void connectWifi() {  // 와이파이 연결 동작
   String join ="AT+CWJAP=\""+ssid+"\",\""+PASSWORD+"\"";
   
   Serial.println("Connect Wifi...");
@@ -43,11 +43,10 @@ void connectWifi() {
   delay(1000);
 }
 
-void httpclient(String char_input)
+void httpclient(String char_input)  // 데이터베이스로 측정한 값을 전송하는 동작
 {
   delay(100);
   Serial.println("connect TCP...");
-  //Serial.println("AT+CIPSTART=\"TCP\",\""+host+"\",80");
   mySerial.println("AT+CIPSTART=\"TCP\",\""+host+"\",80");
   delay(5000);
   if(Serial.find("ERROR")) return;
@@ -64,18 +63,6 @@ void httpclient(String char_input)
   delay(5000);
   mySerial.println(cmd);
   Serial.println(cmd);
-  //Serial.print(">");
- /* if(mySerial.find(">"))
-  {
-    mySerial.println(cmd);
-    Serial.println(cmd);
-  }
-  else
-  {
-    //mySerial.println("AT+CIPCLOSE");
-    Serial.println("connect timeout");
-    delay(1000); return;
-  }*/
   delay(5000);
 
   if(Serial.find("ERROR")) return;
@@ -135,7 +122,6 @@ void loop()
   httpclient(str_output);
   delay(1000);
   
-  //Serial.find("+IPD");
   while (mySerial.available())
   {
     char response = mySerial.read();
