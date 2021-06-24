@@ -74,12 +74,12 @@ void setup(){
   pinMode(sensor_led,OUTPUT); //  미세먼지 적외선 LED를 출력으로 설정
 
   for(int i = 0; i < 5; i++) {  //  미세먼지 기본값을 정해주기 위한 동작
-    digitalWrite(sensor_led, LOW);
-    delayMicroseconds(280);
-    dust_init += analogRead(dust_sensor);
-    delayMicroseconds(40);
-    digitalWrite(sensor_led, HIGH);
-    delayMicroseconds(9680);
+    digitalWrite(sensor_led, LOW);  // LED 켜기
+    delayMicroseconds(280); //  샘플링해주는 시간
+    dust_init += analogRead(dust_sensor); //  센서 값 읽어오기
+    delayMicroseconds(40);  //  너무 많은 데이터 입력을 피해주기 위해 잠시 멈춰주는 시간
+    digitalWrite(sensor_led, HIGH); //  LED끄기
+    delayMicroseconds(9680);  //  LED끄고 대기
   }
 
   dust_initial = (((dust_init/5)*5.0)/1024);
@@ -103,6 +103,7 @@ void loop()
 
   calcVoltage = dust_value * (5.0 / 1024);
   dustDensityug = ((calcVoltage - dust_initial) / 0.005);
+  // 미세먼지 값 계산
   if(dustDensityug < 0) dustDensityug = 0;  // 음수가 나왔을 경우 예외처리
   Serial.print("Dust Density [ug.m^3]: ");
   Serial.println(dustDensityug);
