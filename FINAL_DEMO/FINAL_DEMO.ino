@@ -93,7 +93,6 @@ void loop()
   delayMicroseconds(280);
 
   dust_value = analogRead(dust_sensor);
-  Serial.println(dust_value);
 
   delayMicroseconds(40);
 
@@ -102,7 +101,7 @@ void loop()
 
   calcVoltage = dust_value * (5.0 / 1024);
   dustDensityug = ((calcVoltage - dust_initial) / 0.005);
- // if(dustDensityug < 0) dustDensityug = 0;
+  if(dustDensityug < 0) dustDensityug = 0;
   Serial.print("Dust Density [ug.m^3]: ");
   Serial.println(dustDensityug);
 
