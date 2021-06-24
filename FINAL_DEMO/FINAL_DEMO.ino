@@ -19,10 +19,7 @@ int dust_sensor = A0; //Connect dust sensor to Arduino A0 pin
 int sensor_led = 5;   //Connect 3 led driver pins of dust sensor to Arduino D2
 float dust_value = 0;
 float dustDensityug = 0;
-
-int sampling = 280;
-int waiting = 40;
-int stop_time = 9680;
+float calcVoltage = 0;
 
 float dust_init = 0;
 float dust_initial = 0;
@@ -78,14 +75,14 @@ void setup(){
 
   for(int i = 0; i < 5; i++) {
     digitalWrite(sensor_led, LOW);
-    delayMicroseconds(sampling);
+    delayMicroseconds(280);
     dust_init += analogRead(dust_sensor);
-    delayMicroseconds(waiting);
+    delayMicroseconds(40);
     digitalWrite(sensor_led, HIGH);
-    delayMicroseconds(stop_time);
+    delayMicroseconds(9680);
   }
 
-  dust_initial = (dust_init/5)* (3.3 / 1024.0);
+  dust_initial = (((dust_init/5)*5.0)/1024);
   Serial.print("dust_initial : ");
   Serial.println(dust_initial);
 }
@@ -93,17 +90,19 @@ void setup(){
 void loop()
 {
   digitalWrite(sensor_led, LOW);
-  delayMicroseconds(sampling);
+  delayMicroseconds(280);
 
   dust_value = analogRead(dust_sensor);
+  Serial.println(dust_value);
 
-  delayMicroseconds(waiting);
+  delayMicroseconds(40);
 
   digitalWrite(sensor_led, HIGH);
-  delayMicroseconds(stop_time);
+  delayMicroseconds(9680);
 
-  dustDensityug = ((dust_value * (3.3 / 1024)) - dust_initial) / 0.005;
-  if(dustDensityug < 0) dustDensityug = 0;
+  calcVoltage = dust_value * (5.0 / 1024);
+  dustDensityug = ((calcVoltage - dust_initial) / 0.005);
+ // if(dustDensityug < 0) dustDensityug = 0;
   Serial.print("Dust Density [ug.m^3]: ");
   Serial.println(dustDensityug);
 
