@@ -93,6 +93,8 @@ void loop()
   delayMicroseconds(280);
 
   dust_value = analogRead(dust_sensor);
+  Serial.print("dust_value: ");
+  Serial.println(dust_value);
 
   delayMicroseconds(40);
 
