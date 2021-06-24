@@ -15,8 +15,8 @@ String ssid = "AndroidHotspot7283";
 String PASSWORD = "01020137283";
 String host = "13.125.177.193";
 // ======== 실험을 위한 스마트폰 핫스팟 연결
-int dust_sensor = A0; //Connect dust sensor to Arduino A0 pin
-int sensor_led = 5;   //Connect 3 led driver pins of dust sensor to Arduino D2
+int dust_sensor = A0; //미세먼지 핀 번호
+int sensor_led = 5;   //미세먼지 센서 안에 있는 적외선 LED 핀 번호
 float dust_value = 0;
 float dustDensityug = 0;
 float calcVoltage = 0;
@@ -68,12 +68,12 @@ void httpclient(String char_input)  // 데이터베이스로 측정한 값을 �
 }
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(9600); //  시리얼 모니터 시작, 속도는 9600
   mySerial.begin(9600);
   connectWifi(); delay(500);
-  pinMode(sensor_led,OUTPUT);
+  pinMode(sensor_led,OUTPUT); //  미세먼지 적외선 LED를 출력으로 설정
 
-  for(int i = 0; i < 5; i++) {
+  for(int i = 0; i < 5; i++) {  //  미세먼지 기본값을 정해주기 위한 동작
     digitalWrite(sensor_led, LOW);
     delayMicroseconds(280);
     dust_init += analogRead(dust_sensor);
@@ -103,7 +103,7 @@ void loop()
 
   calcVoltage = dust_value * (5.0 / 1024);
   dustDensityug = ((calcVoltage - dust_initial) / 0.005);
-  if(dustDensityug < 0) dustDensityug = 0;
+  if(dustDensityug < 0) dustDensityug = 0;  // 음수가 나왔을 경우 예외처리
   Serial.print("Dust Density [ug.m^3]: ");
   Serial.println(dustDensityug);
 
