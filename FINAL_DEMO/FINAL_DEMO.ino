@@ -1,15 +1,20 @@
 #include <DHT.h>
 #include <SoftwareSerial.h>
+#include <TinyGPS.h>
 
 DHT DHT(4,DHT11);
 
 #define DHT11_PIN 4
+#define TXPIN 7
+#define RXPIN 6
+#define GPSBAUD 9600
 
 float humi;
 float temp;
 
-SoftwareSerial mySerial(2,3); // RX,TX
-
+SoftwareSerial mySerial(2,3); // RX,TX 와이파이 모듈
+TinyGPS gps;
+SoftwareSerial uart_gps(RXPIN, TXPIN); // GPS 모듈 RX, TX
 
 String ssid = "AndroidHotspot7283";
 String PASSWORD = "01020137283";
