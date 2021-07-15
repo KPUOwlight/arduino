@@ -5,16 +5,13 @@
 DHT DHT(4,DHT11);
 
 #define DHT11_PIN 4
-#define TXPIN 7
-#define RXPIN 6
-#define GPSBAUD 9600
 
 float humi;
 float temp;
 
 SoftwareSerial mySerial(2,3); // RX,TX 와이파이 모듈
 TinyGPS gps;
-SoftwareSerial uart_gps(RXPIN, TXPIN); // GPS 모듈 RX, TX
+SoftwareSerial uart_gps(7,6); // GPS 모듈 RX, TX
 
 String ssid = "AndroidHotspot7283";
 String PASSWORD = "01020137283";
@@ -56,7 +53,7 @@ void httpclient(String char_input)  // 데이터베이스로 측정한 값을 �
   Serial.println("Send data...");
   String url=char_input;
   //Serial.println(url);
-  String cmd="GET /process3.php?temp="+url+" HTTP/1.0\r\n\r\n";
+  String cmd="GET /process4.php?temp="+url+" HTTP/1.0\r\n\r\n";
   //Serial.println(cmd);
   Serial.print("AT+CIPSEND=");
   Serial.println(cmd.length());
@@ -72,11 +69,27 @@ void httpclient(String char_input)  // 데이터베이스로 측정한 값을 �
   delay(100);
 }
 
+void getgps(TinyGPS &gps)
+{
+  float latitude, longitude;
+  
+  gps.f_get_position(&latitude, &longitude);
+  
+  Serial.print("Lat/Long: "); 
+  Serial.print(latitude,5); 
+  Serial.print(", "); 
+  Serial.println(longitude,5);
+  
+  delay(1000);
+}
+
 void setup(){
   Serial.begin(9600); //  시리얼 모니터 시작, 속도는 9600
   mySerial.begin(9600);
   connectWifi(); delay(500);
   pinMode(sensor_led,OUTPUT); //  미세먼지 적외선 LED를 출력으로 설정
+  uart_gps.begin(9600);
+  Serial.println("Start GPS... ");
 
   for(int i = 0; i < 5; i++) {  //  미세먼지 기본값을 정해주기 위한 동작
     digitalWrite(sensor_led, LOW);  // LED 켜기
@@ -120,6 +133,15 @@ void loop()
   int volt = map(val,0,1023,0,100);
   Serial.print(volt);
   Serial.println("mV");
+
+  if(uart_gps.available())
+  {
+    int c = uart_gps.read();
+    if(gps.encode(c))
+    {
+      getgps(gps);
+    }
+  }
   
   temp = DHT.readTemperature();
   humi = DHT.readHumidity();
@@ -127,7 +149,7 @@ void loop()
   delay(1000);
   httpclient(str_output);
   delay(1000);
-  
+
   while (mySerial.available())
   {
     char response = mySerial.read();
