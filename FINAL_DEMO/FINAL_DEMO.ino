@@ -1,6 +1,6 @@
 #include <DHT.h>
 #include <SoftwareSerial.h>
-#include <TinyGPS.h>
+#include <TinyGPS++.h>
 
 DHT DHT(4,DHT11);
 
@@ -10,8 +10,10 @@ float humi;
 float temp;
 
 SoftwareSerial mySerial(2,3); // RX,TX 와이파이 모듈
-TinyGPS gps;
-SoftwareSerial uart_gps(7,6); // GPS 모듈 RX, TX
+
+TinyGPSPlus gps;
+
+//SoftwareSerial uart_gps(7,6); // GPS 모듈 RX, TX
 
 String ssid = "AndroidHotspot7283";
 String PASSWORD = "01020137283";
@@ -25,6 +27,11 @@ float calcVoltage = 0;
 
 float dust_init = 0;
 float dust_initial = 0;
+
+int c;
+float lat, lng;
+
+SoftwareSerial uart_gps(7,6); // GPS 모듈 RX, TX
 
 void connectWifi() {  // 와이파이 연결 동작
   String join ="AT+CWJAP=\""+ssid+"\",\""+PASSWORD+"\"";
@@ -47,7 +54,7 @@ void httpclient(String char_input)  // 데이터베이스로 측정한 값을 �
   delay(100);
   Serial.println("connect TCP...");
   mySerial.println("AT+CIPSTART=\"TCP\",\""+host+"\",80");
-  delay(5000);
+  delay(2000);
   if(Serial.find("ERROR")) return;
           
   Serial.println("Send data...");
@@ -59,37 +66,24 @@ void httpclient(String char_input)  // 데이터베이스로 측정한 값을 �
   Serial.println(cmd.length());
   mySerial.print("AT+CIPSEND=");
   mySerial.println(cmd.length());
-  delay(5000);
+  delay(2000);
   mySerial.println(cmd);
   Serial.println(cmd);
-  delay(5000);
+  delay(2000);
 
   if(Serial.find("ERROR")) return;
   //mySerial.println("AT+CIPCLOSE");
   delay(100);
 }
 
-void getgps(TinyGPS &gps)
-{
-  float latitude, longitude;
-  
-  gps.f_get_position(&latitude, &longitude);
-  
-  Serial.print("Lat/Long: "); 
-  Serial.print(latitude,5); 
-  Serial.print(", "); 
-  Serial.println(longitude,5);
-  
-  delay(1000);
-}
-
 void setup(){
   Serial.begin(9600); //  시리얼 모니터 시작, 속도는 9600
+  delay(100);
   mySerial.begin(9600);
+  delay(100);
   connectWifi(); delay(500);
-  pinMode(sensor_led,OUTPUT); //  미세먼지 적외선 LED를 출력으로 설정
-  uart_gps.begin(9600);
   Serial.println("Start GPS... ");
+  pinMode(sensor_led,OUTPUT); //  미세먼지 적외선 LED를 출력으로 설정
 
   for(int i = 0; i < 5; i++) {  //  미세먼지 기본값을 정해주기 위한 동작
     digitalWrite(sensor_led, LOW);  // LED 켜기
@@ -103,10 +97,36 @@ void setup(){
   dust_initial = (((dust_init/5)*5.0)/1024);
   Serial.print("dust_initial : ");
   Serial.println(dust_initial);
+  uart_gps.begin(9600);
+  delay(1000);
 }
 
 void loop()
 {
+  while(uart_gps.available() > 0)
+  {
+    Serial.print(".");
+    if(gps.encode(uart_gps.read()))
+    {
+      Serial.println(" ");
+      
+      if(gps.location.isValid()) {
+        Serial.print("Location : ");
+        Serial.print(gps.location.lat(),3);
+        lat = gps.location.lat();
+        Serial.print(", ");
+        Serial.println(gps.location.lng(),3);
+        lng = gps.location.lng();
+      }
+      else {
+        Serial.println("INVALID");
+      }
+    }
+  }
+  
+  Serial.println(" ");
+  Serial.print("Position : ");
+  Serial.print(lat); Serial.print(", ");Serial.println(lng); 
   digitalWrite(sensor_led, LOW);
   delayMicroseconds(280);
 
@@ -133,19 +153,10 @@ void loop()
   int volt = map(val,0,1023,0,100);
   Serial.print(volt);
   Serial.println("mV");
-
-  if(uart_gps.available())
-  {
-    int c = uart_gps.read();
-    if(gps.encode(c))
-    {
-      getgps(gps);
-    }
-  }
   
   temp = DHT.readTemperature();
   humi = DHT.readHumidity();
-  String str_output = String(temp)+"&humi="+String(humi)+"&dust="+String(dustDensityug)+"&bat="+String(volt);
+  String str_output = String(temp)+"&humi="+String(humi)+"&dust="+String(dustDensityug)+"&bat="+String(volt)+"&lat="+String(lat)+"&long="+String(lng);
   delay(1000);
   httpclient(str_output);
   delay(1000);
@@ -157,5 +168,5 @@ void loop()
     if(response=='\r') Serial.print('\n');
   }
   Serial.println("\n==================================\n");
-  delay(2000);
+  delay(1000);
 }
