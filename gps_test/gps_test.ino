@@ -31,12 +31,10 @@ void loop()
   while(uart_gps.available() > 0)     // While there is data on the RX pin...
   {
     Serial.print(".");
+    delay(5);
       if(gps.encode(uart_gps.read()))      // if there is a new valid sentence...
       {
         Serial.println(" ");
-    /*  gps.f_get_position(&lat,&lon);
-      Serial.print("Position : ");
-      Serial.print(lat); Serial.print(", ");Serial.println(lon);  */
 
       if(gps.location.isValid()) {
         Serial.print("Location : ");
