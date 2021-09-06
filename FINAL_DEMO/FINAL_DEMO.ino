@@ -106,10 +106,10 @@ void loop()
   while(uart_gps.available() > 0)
   {
     Serial.print(".");
+    delay(5);
     if(gps.encode(uart_gps.read()))
     {
       Serial.println(" ");
-      
       if(gps.location.isValid()) {
         Serial.print("Location : ");
         Serial.print(gps.location.lat(),3);
@@ -127,6 +127,7 @@ void loop()
   Serial.println(" ");
   Serial.print("Position : ");
   Serial.print(lat); Serial.print(", ");Serial.println(lng); 
+  
   digitalWrite(sensor_led, LOW);
   delayMicroseconds(280);
 
