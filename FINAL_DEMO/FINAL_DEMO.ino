@@ -112,10 +112,10 @@ void loop()
       Serial.println(" ");
       if(gps.location.isValid()) {
         Serial.print("Location : ");
-        Serial.print(gps.location.lat(),3);
+        Serial.print(gps.location.lat(),6);
         lat = gps.location.lat();
         Serial.print(", ");
-        Serial.println(gps.location.lng(),3);
+        Serial.println(gps.location.lng(),6);
         lng = gps.location.lng();
       }
       else {
@@ -126,7 +126,7 @@ void loop()
   
   Serial.println(" ");
   Serial.print("Position : ");
-  Serial.print(lat); Serial.print(", ");Serial.println(lng); 
+  Serial.print(lat,6); Serial.print(", ");Serial.println(lng,6); 
   
   digitalWrite(sensor_led, LOW);
   delayMicroseconds(280);
@@ -157,7 +157,7 @@ void loop()
   
   temp = DHT.readTemperature();
   humi = DHT.readHumidity();
-  String str_output = String(temp)+"&humi="+String(humi)+"&dust="+String(dustDensityug)+"&bat="+String(volt)+"&lat="+String(lat)+"&long="+String(lng);
+  String str_output = String(temp)+"&humi="+String(humi)+"&dust="+String(dustDensityug)+"&bat="+String(volt)+"&lat="+String(lat,5)+"&long="+String(lng,5);
   delay(1000);
   httpclient(str_output);
   delay(1000);
